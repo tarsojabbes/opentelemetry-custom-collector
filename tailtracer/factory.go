@@ -21,7 +21,23 @@ func createDefaultConfig() component.Config {
 }
 
 func createTracesReceiver(_ context.Context, params receiver.CreateSettings, baseCfg component.Config, consumer consumer.Traces) (receiver.Traces, error) {
-	return nil, nil
+	
+	// ErrNilNextConsumer is now deprecated (https://github.com/open-telemetry/opentelemetry-collector/pull/9779)
+	/* if consumer == nil {
+		return nil, component.ErrNilNextConsumer
+	} */
+
+	logger := params.Logger
+	tailtracerCfg := baseCfg.(*Config)
+
+	traceRcvr := &tailtracerReceiver{
+		logger: logger,
+		nextConsumer: consumer,
+		config: tailtracerCfg,
+	}
+
+	return traceRcvr, nil
+
 }
 
 // NewFactory creates a factory for tailtracer receiver.
